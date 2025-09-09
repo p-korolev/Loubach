@@ -11,7 +11,7 @@ setup(
     long_description_content_type="text/markdown",
     author="Phillip Korolev",
     author_email="p.korolev1@outlook.com",
-    url="https://github.com/yourname/Loubach",
+    url="https://github.com/p-korolev/Loubach",
     license="MIT",
     packages=find_packages(exclude=("tests", "docs", "examples")),
     include_package_data=True,
@@ -26,4 +26,5 @@ setup(
         "plotly>=5.22.0",
     ],
     python_requires=">=3.9"
+
 )
