@@ -16,6 +16,20 @@ class Interval(str, Enum):
     def __str__(self):
         return self.value
 
+    @classmethod
+    def all(cls) -> list[str]:
+        return [
+            cls.MINUTE,
+            cls.TWO_MINUTE,
+            cls.FIVE_MINUTE,
+            cls.HOUR,
+            cls.DAY,
+            cls.FIVE_DAY,
+            cls.WEEK,
+            cls.MONTH,
+            cls.THREE_MONTH
+        ]
+
 class Period(str, Enum):
     DAY = '1d'
     FIVE_DAY = '5d'
@@ -32,3 +46,18 @@ class Period(str, Enum):
     def __str__(self):
         return self.value
 
+    @classmethod
+    def all(cls) -> list[str]:
+        return [
+            cls.DAY,
+            cls.FIVE_DAY,
+            cls.MONTH,
+            cls.THREE_MONTH,
+            cls.SIX_MONTH,
+            cls.YEAR,
+            cls.TWO_YEAR,
+            cls.FIVE_YEAR,
+            cls.TEN_YEAR,
+            cls.YTD,
+            cls.MAX
+        ]

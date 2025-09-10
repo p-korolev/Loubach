@@ -7,7 +7,7 @@ class Priceable(str, Enum):
     ETF         = "etf"
     INDEX       = "index"
     CURRENCY    = "currency"
-    CRYPTO      = "crypto"
+    CRYPTO      = "cryptocurrency"
     MUTUAL_FUND = "mutual_fund"
     FUTURE      = "future"
     OPTION      = "option"
