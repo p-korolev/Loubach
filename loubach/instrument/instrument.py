@@ -37,10 +37,10 @@ class Instrument:
         self.priceable = True # extra check for future usage if needed
     
     def history(self,
-                start: Union[datetime, str] = None,
+                start: Optional[Union[datetime, str]] = None,
                 end: Optional[Union[datetime, str]] = None,
                 period: Optional[Union[Period, str]] = None, 
-                interval: Union[Interval, str] = Interval.DAY
+                interval: Optional[Union[Interval, str]] = Interval.DAY
                 ) -> pd.DataFrame:
         '''
         Fetches quote history using either start->end or period as lookback periods. Breaks quotes down by interval if specified.

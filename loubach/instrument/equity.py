@@ -2,12 +2,18 @@ import pandas as pd
 import yfinance as yf
 
 from typing import Union, Optional, List
+from numbers import Real
 
+from loubach.error import *
+from loubach.instrument.instrument import Instrument
 from loubach.data.load import Load
 from loubach.types.priceable import Priceable
 from loubach.types.time import Period, Interval
 
-class Equity():
+class Equity(Instrument):
+
+    INSTRUMENT_TYPE = "equity"
+
     def __init__(self, tick: Optional[str] = None, company_name: Optional[str] = None) -> None:
         '''
         Initialize stock object by entering etiher the company's publically traded stock ticker symbol, or name of company.
@@ -16,48 +22,33 @@ class Equity():
         :param company_name: Name of the company (enter only if ticker is left None)
 
         **Examples** 
-
+        
+        >>> # Load AAPL by ticker
         >>> AAPL = Equity(tick="AAPL")
-        >>> # Load AAPL through company name
+        >>> # Load AAPL by company name
         >>> AAPL = Equity(company_name="Apple")
         '''
         # parameter checks
-        if (tick!=None and company_name!=None):
-            raise ValueError(
-                "Expected either tick parameter or company_name parameter to be provided, not both."
-                )
-        if (tick==None and company_name==None):
-            raise ValueError(
-                "Either tick or company_name must be provided."
-            )
+        if company_name!=None and tick!=None:
+            raise TickCompanyParameterOverload
         
-        # initialize connection (check loadable)
-        if tick!=None:
-            try:
-                self.tick = tick
-                self.connection = yf.Ticker(tick) # check if yf loadable
-            except:
-                raise ValueError("tick is invalid or does not exist.")
         if company_name!=None:
-            try:
-                tick = search_tick(company_name=company_name)
-                self.connection = yf.Ticker(tick)
-            except:
-                raise ValueError("Company does not have a publically traded stock or input is invalid.")
+            cticker = search_tick(company_name=company_name)
+            if cticker==None:
+                raise TickSearchError
+            super().__init__(tick=cticker)
+
+        if tick!=None:
+            super().__init__(tick=tick)
         
-        # quote data has not been loaded at init time
-        self.loaded = False
-
-    def history(self, period: Union[Period, str] = Period.MONTH, interval: Union[Interval, str] = Interval.DAY) -> pd.DataFrame:
-        try:
-            self.load = Load(type=Priceable.EQUITY, tick=self.tick, period=period, interval=interval)
-            self.loaded = True
-        except:
-            raise Exception("Cannot load quote history. Check parameters.")
-        return self.load.core 
-
+        if self.priceable_type != Equity.INSTRUMENT_TYPE:
+            raise InstrumentTypeError(desired=Equity.INSTRUMENT_TYPE, given=self.priceable_type.lower())
+    
     def __repr__(self):
-        return self.tick, self.connection.info.get("currentPrice")
+        return self.tick, self.current_price()
+    
+    def current_price(self) -> Real:
+        return self.connection.info.get("currentPrice")
 
 # helper query to search yahoo finance endpoints for tick given company name
 import requests
@@ -65,7 +56,7 @@ def search_tick(company_name: Union[List, str]) -> Union[List, str]:
     '''
     Return tick symbol(s) of inputted company name(s).
 
-    :param company_name: Name of public company.
+    :param company_name: Name of public company as string
 
     **Examples**
     
@@ -96,6 +87,8 @@ def search_tick(company_name: Union[List, str]) -> Union[List, str]:
                 return result.get("symbol")
         return None 
     else: 
-        raise TypeError("Expected company_name to be a list or individual string")
+        raise TypeError("Expected company_name to be a list or single string.")
 
-    
+
+e = Equity(tick = "AAPL")
+print(e.priceable_type)
