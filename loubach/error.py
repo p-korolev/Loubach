@@ -33,3 +33,15 @@ class YFLoadError(Exception):
 class DatesPeriodEntered(Exception):
     def __init__(self):
         super().__init__("Must either pass a period OR start-end dates, not both!")
+
+class TickCompanyParameterOverload(Exception):
+    def __init__(self):
+        super().__init__("Must enter either a ticker or company name, not both.")
+
+class TickSearchError(Exception):
+    def __init__(self):
+        super().__init__("Cannot match given company name with a ticker.")
+
+class InstrumentTypeError(Exception):
+    def __init__(self, desired: str, given: str):
+        super().__init__(f"Expected to build an instrument of type {desired}, but given ticker/company is an instrument of type {given}")
