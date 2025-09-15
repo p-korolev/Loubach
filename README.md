@@ -13,9 +13,8 @@ pip install loubach
 ```python
 
 from loubach.instrument.equity import Equity
-from loubach.types.time import Period, Interval
-
 from loubach.timeseries.display import Display
+from loubach.types.time import Period, Interval
 from loubach.math.technicals import sma, ema, rsi
 from loubach.math.trend import bullish
 
@@ -30,9 +29,5 @@ bull = bullish(data = ytd_closing, n_observable = 7, differential = 0.68)
 # Plot data
 Display(primary = ytd_closing, include=[sma, bull]).show()
 
-
-
-
-
-
 ```
+
