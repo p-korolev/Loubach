@@ -13,8 +13,8 @@ class Load:
     def __init__(self,
                  tick: str,
                  instrument_type: Union[Priceable, str],
-                 start: Union[datetime, str] = None,
-                 end: Union[datetime, str] = None,
+                 start: Optional[Union[datetime, str]] = None,
+                 end: Optional[Union[datetime, str]] = None,
                  period: Optional[Union[Period, str]] = None,
                  interval: Union[Interval, str] = Interval.DAY):
         '''
