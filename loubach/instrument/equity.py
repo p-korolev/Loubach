@@ -52,7 +52,7 @@ class Equity(Instrument):
 
 # helper query to search yahoo finance endpoints for tick given company name
 import requests
-def search_tick(company_name: Union[List, str]) -> Union[List, str]:
+def search_tick(*company: Union[List, str]) -> Union[List, str]:
     '''
     Return tick symbol(s) of inputted company name(s).
 
@@ -63,32 +63,19 @@ def search_tick(company_name: Union[List, str]) -> Union[List, str]:
     >>> search_tick("Apple Inc.")
     "AAPL"
 
-    >>> search_tick("Apple")
-    "AAPL"
-
     >>> search_tick(["Apple", "Tesla"])
     ["AAPL", "TSLA"]
     '''
     
-    if isinstance(company_name, List):
-        result = []
-        for company in company_name:
-            url = f"https://query1.finance.yahoo.com/v1/finance/search?q={company}"
-            response = requests.get(url).json()
-            for result in response.get("quotes", []):
-                if result.get("quoteType")=="EQUITY":
-                    result.append(result.get("symbol"))
-            result.append("")
-    if isinstance(company_name, str):
-        url = f"https://query1.finance.yahoo.com/v1/finance/search?q={company_name}"
+    ticks = []
+    for c in company:
+        url = f"https://query1.finance.yahoo.com/v1/finance/search?q={c}"
         response = requests.get(url).json()
         for result in response.get("quotes", []):
-            if result.get("quoteType")=="EQUITY":
-                return result.get("symbol")
-        return None 
-    else: 
-        raise TypeError("Expected company_name to be a list or single string.")
-
-
-e = Equity(tick = "AAPL")
-print(e.priceable_type)
+            if result.get("quoteType")==Priceable.EQUITY.upper():
+                ticks.append(result.get("symbol"))
+        ticks.append("")
+    if len(ticks)==1:
+        return ticks[0]
+    return ticks
+    

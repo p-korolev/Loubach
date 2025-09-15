@@ -7,6 +7,7 @@ from datetime import datetime
 from loubach.error import *
 from loubach.types.priceable import Priceable
 from loubach.types.time import Period, Interval
+from loubach.types.qtime import QuoteTiming 
 from loubach.data.load import Load
 
 class Instrument:
@@ -45,8 +46,8 @@ class Instrument:
         '''
         Fetches quote history using either start->end or period as lookback periods. Breaks quotes down by interval if specified.
 
-        :param start: Start date for history lookback.
-        :param end: End date for history lookback.
+        :param start: Start date for history lookback
+        :param end: End date for history lookback
         :param period: Alternative to start-end dates usage. Must be a valid period (check loubach.types.time.Period.all())
         :param interval: Time in between quotes during lookback period (Interval.DAY by default)
 
@@ -77,4 +78,37 @@ class Instrument:
             raise Exception(
                 "Parameters are not passed properly. Check that either start-end dates OR period is provided."
                 )
+    
+    def price(self,
+              qtime_pref: Optional[Union[QuoteTiming, str]] = QuoteTiming.CLOSE,
+              start: Optional[Union[datetime, str]] = None,
+              end: Optional[Union[datetime, str]] = None,
+              period: Optional[Union[Period, str]] = None, 
+              interval: Optional[Union[Interval, str]] = Interval.DAY
+              ) -> pd.Series:
+        '''
+        Pulls a series of prices by lookback date and interval. Uses qtime_pref to decide which of the Open, High, Low, or Close prices to use.
 
+        :param qtime_pref: Open, High, Low, Close      
+        :param start: Start date for history lookback
+        :param end: End date for history lookback
+        :param period: Alternative to start-end dates usage. Must be a valid period (check loubach.types.time.Period.all())
+        :param interval: Time in between quotes during lookback period (Interval.DAY by default)
+        '''
+        return self.history(start=start, end=end, period=period, interval=interval)[str(qtime_pref)]
+    
+    def volume(self,
+               start: Optional[Union[datetime, str]] = None,
+               end: Optional[Union[datetime, str]] = None,
+               period: Optional[Union[Period, str]] = None, 
+               interval: Optional[Union[Interval, str]] = Interval.DAY
+               ) -> pd.Series:
+        '''
+        Pulls a series of volume during given interval over the lookback period.
+
+        :param start: Start date for history lookback
+        :param end: End date for history lookback
+        :param period: Alternative to start-end dates usage. Must be a valid period (check loubach.types.time.Period.all())
+        :param interval: Time in between quotes during lookback period (Interval.DAY by default)
+        '''
+        return self.history(start=start, end=end, period=period, interval=interval)["Volume"]
