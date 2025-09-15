@@ -30,7 +30,7 @@ class YFLoadError(Exception):
     def __init__(self):
         super().__init__("Cannot currently load instrument data.")
 
-class DatesPeriodEntered(Exception):
+class DatesAndPeriodEntered(Exception):
     def __init__(self):
         super().__init__("Must either pass a period OR start-end dates, not both!")
 
@@ -45,3 +45,11 @@ class TickSearchError(Exception):
 class InstrumentTypeError(Exception):
     def __init__(self, desired: str, given: str):
         super().__init__(f"Expected to build an instrument of type {desired}, but given ticker/company is an instrument of type {given}")
+
+class OperationOnSeriesError(Exception):
+    def __init__(self):
+        super().__init__("Unable to perform certain operations on given series.")
+
+class SeriesNormalizationMethodError(Exception):
+    def __init__(self):
+        super().__init__("Cannot normalize the series with the given method. Please choose an appropriate normalization method.")
