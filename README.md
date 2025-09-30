@@ -8,3 +8,8 @@ Loubach is an open-source Python library aimed to ease quantitative market analy
 pip install loubach
 
 ```
+
+# Currently Under Development 
+
+* Portfolio/Holding functionality
+* Time series functionality
