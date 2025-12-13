@@ -55,7 +55,3 @@ class SinglePricePlot(PriceTimeSeries):
                     self.include(technicals.simple_moving_average(core_frame['Close']))
                 if t=='rsi':
                     self.include(technicals.rsi(data=core_frame['Close']))
-
-# testing
-# spp_aapl = SinglePricePlot(priceable=Instrument(tick='AAPL'), period='1mo', interval='1h', techs=['sma', 'rsi'])
-# spp_aapl.display()
