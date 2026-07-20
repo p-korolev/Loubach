@@ -53,3 +53,19 @@ class OperationOnSeriesError(Exception):
 class SeriesNormalizationMethodError(Exception):
     def __init__(self):
         super().__init__("Cannot normalize the series with the given method. Please choose an appropriate normalization method.")
+
+class EmptyPortfolioError(Exception):
+    def __init__(self):
+        super().__init__("Portfolio has no holdings. Add a Holding before calling this method.")
+
+class DuplicateHoldingError(Exception):
+    def __init__(self, tick: str):
+        super().__init__(f"Portfolio already has a holding for ticker {tick}. Remove it first or update its quantity directly.")
+
+class HoldingNotFoundError(Exception):
+    def __init__(self, tick: str):
+        super().__init__(f"No holding found for ticker {tick} in this portfolio.")
+
+class UnsupportedTechnicalError(Exception):
+    def __init__(self, tech: str, supported):
+        super().__init__(f"'{tech}' is not a supported technical overlay. Choose from: {sorted(supported)}")
