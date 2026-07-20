@@ -176,7 +176,6 @@ class Instrument:
 
     def sector(self) -> str:
         '''
-        Returns the instrument's sector as reported by Yahoo Finance. Returns "Unknown" if unavailable
-        (common for non-equity instruments like ETFs, indices, or currencies).
+        Returns the instrument's sector as reported by Yahoo Finance. Returns "Unknown" if unavailable.
         '''
         return self.connection.info.get("sector") or "Unknown"
