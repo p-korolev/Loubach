@@ -1,7 +1,8 @@
 import pandas as pd
 import yfinance as yf
 
-from typing import Union, Optional 
+from typing import Union, Optional
+from numbers import Real
 from datetime import datetime 
 
 from loubach.error import *
@@ -35,7 +36,6 @@ class Instrument:
             raise TickerNotPriceableError
 
         self.tick = tick
-        self.priceable = True # extra check for future usage if needed
     
     def history(self,
                 start: Optional[Union[datetime, str]] = None,
@@ -112,3 +112,71 @@ class Instrument:
         :param interval: Time in between quotes during lookback period (Interval.DAY by default)
         '''
         return self.history(start=start, end=end, period=period, interval=interval)["Volume"]
+    
+    def current_price(self) -> Real:
+        return self.connection.info.get("currentPrice")
+
+    def get_price_at(
+        self,
+        time: Union[datetime, str],
+        ohlc_type: str = QuoteTiming.CLOSE,
+        interval: Optional[str] = None,) -> float:
+            _EXCHANGE_TZ = "America/New_York"
+            ts = pd.to_datetime(time)
+
+            # Decide interval automatically if not given
+            if interval is None:
+                interval = Interval.DAY if ts.time() == datetime.min.time() else Interval.MINUTE
+
+            # Build a small window around ts (works whether tz-aware or not)
+            if interval == Interval.DAY:
+                start, end = ts, ts + pd.Timedelta(days=1)
+            else:
+                start, end = ts - pd.Timedelta(minutes=5), ts + pd.Timedelta(minutes=5)
+
+            df = self.history(start=start, end=end, interval=str(interval))
+            if df.empty:
+                raise YFLoadError("No data returned for requested window.")
+
+            # ---- KEY: align 'ts' to the same tz-awareness as df.index ----
+            idx_tz = getattr(df.index, "tz", None)  # None for naive, else tzinfo
+
+            # If the index is naive (typical for daily), drop tz from ts
+            if idx_tz is None:
+                if ts.tzinfo is not None:
+                    # convert to exchange tz first so a plain date like "2025-09-29" matches local day,
+                    # then drop tz to compare on naive basis
+                    try:
+                        ts = ts.tz_convert(_EXCHANGE_TZ)
+                    except Exception:
+                        ts = ts.tz_localize(_EXCHANGE_TZ)
+                    ts = ts.tz_localize(None)
+                # for daily bars, match the date bucket
+                if interval == Interval.DAY:
+                    ts = ts.normalize()
+            else:
+                # Index is tz-aware (typical for intraday); make ts tz-aware and convert
+                if ts.tzinfo is None:
+                    ts = ts.tz_localize(_EXCHANGE_TZ)
+                ts = ts.tz_convert(idx_tz)
+
+            # Now comparisons are safe
+            if ts in df.index:
+                return float(df.loc[ts, str(ohlc_type)])
+
+            # Else pick the nearest available time
+            pos = df.index.get_indexer([ts], method="nearest")[0]
+            if pos == -1:
+                raise YFLoadError("No nearby timestamp found in returned data.")
+            nearest = df.index[pos]
+            return float(df.loc[nearest, str(ohlc_type)])
+    
+    def currency(self) -> str:
+        return self.connection.info.get("currency")
+
+    def sector(self) -> str:
+        '''
+        Returns the instrument's sector as reported by Yahoo Finance. Returns "Unknown" if unavailable
+        (common for non-equity instruments like ETFs, indices, or currencies).
+        '''
+        return self.connection.info.get("sector") or "Unknown"
